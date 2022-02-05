@@ -1,4 +1,8 @@
 import { createApp } from 'vue'
-import App from './App.vue'
+import App from "./App.vue";
+import "leaflet/dist/leaflet.css";
 
-createApp(App).mount('#app')
+require('dotenv').config()
+
+const app = createApp(App);
+app.mount("#app");
