@@ -6,8 +6,19 @@
         layer-type="base"
         name="OpenStreetMap"
       ></l-tile-layer>
-      <l-geo-json :geojson="this.$store.state.regions_geo" :options="options" />
+      <l-geo-json
+        @add="afterMapLoad"
+        ref="geojson"
+        :geojson="this.$store.state.regions_geo"
+        :options="options"
+      />
     </l-map>
+    <select v-model="current_eco2mix_category">
+      <option disabled value="">Please select one</option>
+      <option v-for="category in eco2mix_categories" v-bind:key="category">
+        {{ category }}
+      </option>
+    </select>
   </div>
 </template>
 
@@ -30,53 +41,26 @@ export default {
       zoom: 6,
       min_eco: null,
       max_eco: null,
+      previous_options: null,
     };
   },
   computed: {
+    eco2mix_categories: {
+      get() {
+        return this.$store.state.eco2mix_categories;
+      },
+    },
+    current_eco2mix_category: {
+      get() {
+        return this.$store.state.eco2mix_current_category;
+      },
+      set(value) {
+        this.$store.commit("updateECO2MIXCurrentCategory", value);
+      },
+    },
     options() {
       return {
         onEachFeature: this.onEachFeatureFunction,
-        style: this.styleFunction,
-      };
-    },
-    styleFunction() {
-      console.log("CHanging color");
-      const scale = chroma.scale(["green", "red"]); //"Viridis"
-      const max = [...this.$store.state.eco2mix_data.entries()].reduce((a, e) =>
-        e[1]["Total"] > a[1]["Total"] ? e : a
-      );
-      const min = [...this.$store.state.eco2mix_data.entries()].reduce((a, e) =>
-        e[1]["Total"] < a[1]["Total"] ? e : a
-      );
-      console.log(min, max);
-      return (feature) => {
-        const eco2mix_feat = this.$store.state.eco2mix_data.get(
-          feature.properties.nom
-        );
-        if (eco2mix_feat == undefined) {
-          console.log(feature.properties.nom);
-          return {
-            fillColor: "#FFFFFF",
-            weight: 2,
-            opacity: 1,
-            color: "white",
-            dashArray: "3",
-            fillOpacity: 0.7,
-          };
-        }
-
-        let scaledValue =
-          (eco2mix_feat["Total"] - min[1]["Total"]) /
-          (max[1]["Total"] - min[1]["Total"]);
-        let color = scale(scaledValue).hex();
-        return {
-          fillColor: color,
-          weight: 2,
-          opacity: 1,
-          color: "white",
-          dashArray: "3",
-          fillOpacity: 0.7,
-        };
       };
     },
     onEachFeatureFunction() {
@@ -85,6 +69,20 @@ export default {
           feature.properties.nom
         );
         if (eco2mix_feat == undefined) return null;
+        layer.on("mouseover", () => {
+          var category = this.$store.state.eco2mix_current_category;
+          if (category == null || category == "Total") return null;
+          layer.setStyle({
+            color: "#cc0000",
+            weight: 2,
+          });
+        });
+        layer.on("mouseout", () => {
+          layer.setStyle({
+            color: "#FFFFFF",
+            weight: 2,
+          });
+        });
         layer.bindTooltip(
           "<div class='region_title'>Région : " +
             eco2mix_feat["Région"] +
@@ -111,6 +109,64 @@ export default {
     },
   },
   methods: {
+    getStyleForRegion(region) {
+      const scale = chroma.scale(["green", "red"]);
+      var category = this.$store.state.eco2mix_current_category;
+      var ecodata = this.$store.state.eco2mix_data;
+      if (category == null || ecodata == null) return null;
+      const max = [...ecodata.entries()].reduce((a, e) =>
+        e[1][category] > a[1][category] ? e : a
+      );
+      const min = [...ecodata.entries()].reduce((a, e) =>
+        e[1][category] < a[1][category] ? e : a
+      );
+      const eco2mix_feat = this.$store.state.eco2mix_data.get(region);
+      if (eco2mix_feat == undefined) {
+        console.log(region);
+        return {
+          fillColor: "#FFFFFF",
+          weight: 2,
+          opacity: 1,
+          color: "white",
+          dashArray: "3",
+          fillOpacity: 0.7,
+        };
+      }
+
+      let scaledValue =
+        (eco2mix_feat[category] - min[1][category]) /
+        (max[1][category] - min[1][category]);
+
+      let color = scale(scaledValue).hex();
+      console.log(category, color);
+      return {
+        fillColor: color,
+        weight: 2,
+        opacity: 1,
+        color: "white",
+        dashArray: "3",
+        fillOpacity: 0.7,
+      };
+    },
+    updateECO2MIXStyles() {
+      console.log("Updating styles");
+      this.$nextTick(() => {
+        if (this.$refs.geojson && this.$refs.geojson.leafletObject) {
+          console.log(this.$refs.geojson.leafletObject._map);
+          this.$refs.geojson.leafletObject.eachLayer((layer) => {
+            var region = layer.feature.properties["nom"];
+            // eslint-disable-next-line no-unused-vars
+            layer.setStyle(this.getStyleForRegion(region));
+            //layer.remove();
+          });
+          //this.$refs.geojson.leafletObject._map.invalidateSize(true);
+        }
+      });
+    },
+    afterMapLoad() {
+      console.log("After map load");
+      this.updateECO2MIXStyles();
+    },
     async fetchData() {
       try {
         // Only fetch articles / links / categories if not yet done
@@ -125,9 +181,16 @@ export default {
       }
     },
   },
+  watch: {
+    current_eco2mix_category() {
+      this.updateECO2MIXStyles();
+    },
+  },
   async created() {
     this.loading = true;
+    console.log("Fetching data in REGIONS");
     await this.fetchData();
+    console.log("Finished fetching");
     this.loading = false;
   },
 };
