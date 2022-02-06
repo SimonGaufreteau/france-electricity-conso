@@ -6,17 +6,15 @@
         layer-type="base"
         name="OpenStreetMap"
       ></l-tile-layer>
-      <l-geo-json :geojson="geojson" :options="options" />
+      <l-geo-json :geojson="this.$store.state.regions_geo" :options="options" />
     </l-map>
   </div>
 </template>
 
 <script>
 import { LMap, LTileLayer, LGeoJson } from "@vue-leaflet/vue-leaflet";
-import regions_json from "../assets/regions.json";
+
 import chroma from "chroma-js";
-import sample_eco2mix from "../assets/eco2mix_sample.json";
-import { mapEcoData } from "../utils_js/eco2mix_utils";
 
 export default {
   name: "Example",
@@ -30,8 +28,6 @@ export default {
       loading: false,
       show: true,
       zoom: 6,
-      geojson: null,
-      eco2mix_data: null,
       min_eco: null,
       max_eco: null,
     };
@@ -46,15 +42,17 @@ export default {
     styleFunction() {
       console.log("CHanging color");
       const scale = chroma.scale(["green", "red"]); //"Viridis"
-      const max = [...this.eco2mix_data.entries()].reduce((a, e) =>
+      const max = [...this.$store.state.eco2mix_data.entries()].reduce((a, e) =>
         e[1]["Total"] > a[1]["Total"] ? e : a
       );
-      const min = [...this.eco2mix_data.entries()].reduce((a, e) =>
+      const min = [...this.$store.state.eco2mix_data.entries()].reduce((a, e) =>
         e[1]["Total"] < a[1]["Total"] ? e : a
       );
       console.log(min, max);
       return (feature) => {
-        const eco2mix_feat = this.eco2mix_data.get(feature.properties.nom);
+        const eco2mix_feat = this.$store.state.eco2mix_data.get(
+          feature.properties.nom
+        );
         if (eco2mix_feat == undefined) {
           console.log(feature.properties.nom);
           return {
@@ -83,7 +81,9 @@ export default {
     },
     onEachFeatureFunction() {
       return (feature, layer) => {
-        const eco2mix_feat = this.eco2mix_data.get(feature.properties.nom);
+        const eco2mix_feat = this.$store.state.eco2mix_data.get(
+          feature.properties.nom
+        );
         if (eco2mix_feat == undefined) return null;
         layer.bindTooltip(
           "<div class='region_title'>Région : " +
@@ -110,10 +110,24 @@ export default {
       };
     },
   },
+  methods: {
+    async fetchData() {
+      try {
+        // Only fetch articles / links / categories if not yet done
+        if (this.$store.state.regions_geo == null) {
+          this.$store.dispatch("fetchRegionsGeo");
+        }
+        if (this.$store.state.eco2mix_data == null) {
+          this.$store.dispatch("fetchECO2MIX");
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    },
+  },
   async created() {
     this.loading = true;
-    this.geojson = regions_json;
-    this.eco2mix_data = mapEcoData(sample_eco2mix);
+    await this.fetchData();
     this.loading = false;
   },
 };
