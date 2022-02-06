@@ -78,10 +78,7 @@ export default {
           });
         });
         layer.on("mouseout", () => {
-          layer.setStyle({
-            color: "#FFFFFF",
-            weight: 2,
-          });
+          layer.setStyle(this.getStyleForRegion(feature.properties.nom));
         });
         layer.bindTooltip(
           "<div class='region_title'>Région : " +
