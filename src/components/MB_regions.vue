@@ -86,10 +86,24 @@ export default {
         const eco2mix_feat = this.eco2mix_data.get(feature.properties.nom);
         if (eco2mix_feat == undefined) return null;
         layer.bindTooltip(
-          "<div>Région : " +
+          "<div class='region_title'>Région : " +
             eco2mix_feat["Région"] +
-            "</div><div>Conso Totale : " +
+            "</div><div class='total_conso'>Conso Totale (MW) : " +
             eco2mix_feat["Total"] +
+            "</div><div><ul><div class='underlined'>Production (MW) :</div> " +
+            "<li>Thermique : " +
+            eco2mix_feat["Thermique"] +
+            "</li><li>Nucléaire : " +
+            eco2mix_feat["Nucléaire"] +
+            "</li><li>Éolien : " +
+            eco2mix_feat["Éolien"] +
+            "</li><li>Solaire : " +
+            eco2mix_feat["Solaire"] +
+            "</li><li>Hydraulique : " +
+            eco2mix_feat["Hydraulique"] +
+            "</li><li>Bioénergies : " +
+            eco2mix_feat["Bioénergies"] +
+            "</li></ul></div>" +
             "</div>",
           { permanent: false, sticky: true }
         );
@@ -113,5 +127,30 @@ export default {
 .map-wrapper {
   height: 75vh;
   width: 75vh;
+}
+
+.region_title {
+  font-size: 16px;
+}
+
+.total_conso {
+  font-weight: bold;
+}
+
+.underlined {
+  text-decoration: underline;
+}
+
+ul {
+  display: flex;
+  flex-direction: column;
+  align-content: flex-start;
+  padding: 0px;
+  /* padding-left: 10px; */
+  margin: 0px;
+}
+
+li {
+  margin-left: 15px;
 }
 </style>
