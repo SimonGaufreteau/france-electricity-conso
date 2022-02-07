@@ -20,6 +20,7 @@ export default createStore({
         eco2mix_data: null,
         eco2mix_categories: null,
         eco2mix_current_category: null,
+        eco2mix_prod_ratio: null,
     },
     mutations: {
         updateCurrentRegion(state, region) {
@@ -30,6 +31,9 @@ export default createStore({
         },
         resetECO2MIXCurrentRegion(state) {
             state.eco2mix_current_region = state.current_region;
+        },
+        updateECO2MIXProdRatio(state, ratio) {
+            state.eco2mix_prod_ratio = ratio;
         },
         updateRegionsGeo(state, regions) {
             state.regions_geo = regions;
@@ -59,6 +63,10 @@ export default createStore({
             var region = 'Auvergne-Rhône-Alpes';
             context.commit('updateCurrentRegion', region);
             context.commit('updateECO2MIXCurrentRegion', region);
+        },
+        //TODO : fetch ratio from server
+        fetchECO2MIXProdRatio(context) {
+            context.commit('updateECO2MIXProdRatio', 0.1645);
         }
     },
 })
