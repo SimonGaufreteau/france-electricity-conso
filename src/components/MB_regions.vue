@@ -56,15 +56,14 @@ export default {
         );
         if (eco2mix_feat == undefined) return null;
         layer.on("mouseover", () => {
-          var category = this.$store.state.eco2mix_current_category;
-          if (category == null || category == "Total") return null;
-          layer.setStyle({
-            color: "#cc0000",
-            weight: 2,
-          });
+          this.$store.commit(
+            "updateECO2MIXCurrentRegion",
+            feature.properties.nom
+          );
         });
         layer.on("mouseout", () => {
           layer.setStyle(this.getStyleForRegion(feature.properties.nom));
+          this.$store.commit("resetECO2MIXCurrentRegion");
         });
         layer.bindTooltip(
           "<div class='region_title'>Région : " +
@@ -105,7 +104,6 @@ export default {
       );
       const eco2mix_feat = this.$store.state.eco2mix_data.get(region);
       if (eco2mix_feat == undefined) {
-        console.log(region);
         return {
           fillColor: "#FFFFFF",
           weight: 2,
@@ -121,7 +119,6 @@ export default {
         (max[1][category] - min[1][category]);
 
       let color = scale(scaledValue).hex();
-      console.log(category, color);
       return {
         fillColor: color,
         weight: 2,
@@ -132,10 +129,8 @@ export default {
       };
     },
     updateECO2MIXStyles() {
-      console.log("Updating styles");
       this.$nextTick(() => {
         if (this.$refs.geojson && this.$refs.geojson.leafletObject) {
-          console.log(this.$refs.geojson.leafletObject._map);
           this.$refs.geojson.leafletObject.eachLayer((layer) => {
             var region = layer.feature.properties["nom"];
             // eslint-disable-next-line no-unused-vars
@@ -147,7 +142,6 @@ export default {
       });
     },
     afterMapLoad() {
-      console.log("After map load");
       this.updateECO2MIXStyles();
     },
     async fetchData() {
