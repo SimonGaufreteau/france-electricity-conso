@@ -13,7 +13,10 @@ import { mapEcoData } from "../utils_js/eco2mix_utils";
 export default createStore({
     state: {
         regions_geo: null,
+        // User region
         current_region: null,
+        // Region selected on the map
+        eco2mix_current_region: null,
         eco2mix_data: null,
         eco2mix_categories: null,
         eco2mix_current_category: null,
@@ -21,6 +24,12 @@ export default createStore({
     mutations: {
         updateCurrentRegion(state, region) {
             state.current_region = region;
+        },
+        updateECO2MIXCurrentRegion(state, region) {
+            state.eco2mix_current_region = region;
+        },
+        resetECO2MIXCurrentRegion(state) {
+            state.eco2mix_current_region = state.current_region;
         },
         updateRegionsGeo(state, regions) {
             state.regions_geo = regions;
@@ -49,6 +58,7 @@ export default createStore({
         fetchCurrentRegion(context) {
             var region = 'Auvergne-Rhône-Alpes';
             context.commit('updateCurrentRegion', region);
+            context.commit('updateECO2MIXCurrentRegion', region);
         }
     },
 })

@@ -3,6 +3,7 @@
     <MB_regions />
     <selectCategoryECO2Mix />
     <region-frame />
+    <eco2mixGraph />
   </div>
 </template>
 
@@ -10,6 +11,7 @@
 import MB_regions from "./components/MB_regions.vue";
 import regionFrame from "./components/regionFrame.vue";
 import selectCategoryECO2Mix from "./components/selectCategoryECO2Mix.vue";
+import eco2mixGraph from "./components/eco2mixGraph.vue";
 
 export default {
   name: "App",
@@ -17,6 +19,7 @@ export default {
     MB_regions,
     regionFrame,
     selectCategoryECO2Mix,
+    eco2mixGraph,
   },
 };
 </script>
