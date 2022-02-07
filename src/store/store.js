@@ -13,12 +13,15 @@ import { mapEcoData } from "../utils_js/eco2mix_utils";
 export default createStore({
     state: {
         regions_geo: null,
+        current_region: null,
         eco2mix_data: null,
         eco2mix_categories: null,
         eco2mix_current_category: null,
-
     },
     mutations: {
+        updateCurrentRegion(state, region) {
+            state.current_region = region;
+        },
         updateRegionsGeo(state, regions) {
             state.regions_geo = regions;
         },
@@ -41,6 +44,11 @@ export default createStore({
             // TODO : replace this with fetch from server
             var eco2mix = mapEcoData(sample_eco2mix);
             context.commit('updateECO2MIX', eco2mix);
+        },
+        //TODO : Fetch current region
+        fetchCurrentRegion(context) {
+            var region = 'Auvergne-Rhône-Alpes';
+            context.commit('updateCurrentRegion', region);
         }
     },
 })
