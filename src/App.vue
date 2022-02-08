@@ -9,6 +9,10 @@
     <consoTimer />
     <br />
     <eco2mixGraph />
+
+    <consoGraph />
+    <br />
+    <tempGraph />
     <br />
   </div>
 </template>
@@ -19,6 +23,11 @@ import regionFrame from "./components/regionFrame.vue";
 import selectCategoryECO2Mix from "./components/selectCategoryECO2Mix.vue";
 import eco2mixGraph from "./components/eco2mixGraph.vue";
 import consoTimer from "./components/consoTimer.vue";
+import tempGraph from "./components/tempGraph.vue";
+import consoGraph from "./components/24hConsoGraph.vue";
+
+import { Chart, registerables } from "chart.js";
+Chart.register(...registerables);
 
 export default {
   name: "App",
@@ -28,6 +37,8 @@ export default {
     selectCategoryECO2Mix,
     eco2mixGraph,
     consoTimer,
+    tempGraph,
+    consoGraph,
   },
 };
 </script>

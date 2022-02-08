@@ -7,8 +7,6 @@ import { BarChart } from "vue-chart-3";
 /*import { Chart, BarController } from "chart.js";
 Chart.register(BarController);*/
 
-import { Chart, registerables } from "chart.js";
-Chart.register(...registerables);
 export default {
   name: "eco2mixGraph",
   components: { BarChart },
@@ -48,7 +46,6 @@ export default {
     },
     chartDataComp: {
       get() {
-        console.log("Getting chartData");
         var ecoData = this.$store.state.eco2mix_data.get(this.current_region);
 
         var categories = this.$store.state.eco2mix_categories;
@@ -57,7 +54,6 @@ export default {
         var colors = ["#77CEFF", "#0079AF", "#123E6B", "#97B0C4", "#A5C8ED"];
 
         var stacked = [...this.stackedCharData.values()];
-        console.log(stacked);
 
         filtered.forEach((category) => {
           dataCat.push(ecoData[category]);
@@ -75,7 +71,6 @@ export default {
           labels: filtered,
           datasets: dts,
         };
-        console.log(res);
         return res;
       },
     },
