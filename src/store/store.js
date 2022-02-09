@@ -5,6 +5,7 @@ import regions_json from "../assets/regions.json";
 //SAMPLE DATA
 import sample_eco2mix from "../assets/eco2mix_sample.json";
 import eco_24 from '../assets/eco2mix_24h.json';
+import temperature from '../assets/temperature_sample.json'
 
 // UTILS
 import { mapEcoData } from "../utils_js/eco2mix_utils";
@@ -32,8 +33,7 @@ export default createStore({
         eco2mix_24h: null,
 
         // TEMPERATURE DATA
-        temperature_year_data: null,
-        temperature_day_data: null,
+        temperature_data: null,
     },
     mutations: {
         updateCurrentRegion(state, region) {
@@ -66,10 +66,35 @@ export default createStore({
         updateLoginStatus(state, jwt) {
             state.isLogged = true;
             state.currentJWT = jwt.token;
+        },
+        updateTemperatureData(state, data) {
+            state.temperature_data = data;
         }
     },
 
     actions: {
+        // Data --> {url:String,options:RequestOptions,hasres:boolean}
+        async genericFetching(context, data) {
+            const url = data["url"];
+            const options = data["options"];
+            const hasres = data["hasres"];
+
+            console.log("Generic fetching on : ", url, " / Options : ", options);
+            return ((options != null && options != undefined) ? fetch(url, options) : fetch(url)).then(async response => {
+                // check for error response
+                if (!response.ok) {
+                    // get error message from body or default to response status
+                    const error = (data && data.message) || response.status;
+                    return Promise.reject(error);
+                }
+                if (hasres)
+                    return await response.json();
+            })
+                .catch(error => {
+                    console.error('Error in generic fetching : ', error);
+                    return Promise.reject(error);
+                });
+        },
         fetchRegionsGeo(context) {
             var geojson = regions_json;
             context.commit('updateRegionsGeo', geojson);
@@ -102,34 +127,29 @@ export default createStore({
             var h24 = eco_24;
             context.commit('updateECO2MIX24h', h24);
         },
+        // eslint-disable-next-line no-unused-vars
+        async fetchTemperatureData({ dispatch, commit }, region) {
+            const data = temperature;
+            commit('updateTemperatureData', data);
+            /*const url = "http://localhost:8080/microservices/temperature/yearRegion/2021/" + region
+            return dispatch('genericFetching', { url: url, hasres: true }).then((data) => commit('updateTemperatureData', data));*/
+
+        },
         // logs : {login: String, password: String}
-        async login(context, logs) {
+        async login({ dispatch, commit }, logs) {
             const jsonLogs = JSON.stringify(logs);
 
-            console.log("Got login request, params : " + jsonLogs);
             const requestOptions = {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: jsonLogs
-            }
-            return fetch("http://localhost:8080/api/authentification/login", requestOptions).then(async response => {
-                const data = await response.json();
+            };
+            console.log("Got login request, params : " + requestOptions);
 
-                // check for error response
-                if (!response.ok) {
-                    // get error message from body or default to response status
-                    const error = (data && data.message) || response.status;
-                    return Promise.reject(error);
-                }
+            return dispatch('genericFetching', { url: 'http://localhost:8080/api/authentification/login', options: requestOptions, hasres: true }).then(data => commit('updateLoginStatus', data));
 
-                context.commit('updateLoginStatus', data);
-            })
-                .catch(error => {
-                    this.errorMessage = error;
-                    console.error('There was an error!', error);
-                });
         },
-        async register(context, logs) {
+        async register({ dispatch }, logs) {
             const jsonLogs = JSON.stringify(logs);
 
             console.log("Got register request, params : " + jsonLogs);
@@ -138,20 +158,8 @@ export default createStore({
                 headers: { "Content-Type": "application/json" },
                 body: jsonLogs
             }
-            return fetch("http://localhost:8080/api/authentification/register", requestOptions).then(async response => {
-                const data = await response.json();
+            return dispatch('genericFetching', { url: 'http://localhost:8080/api/authentification/register', options: requestOptions });
 
-                // check for error response
-                if (!response.ok) {
-                    // get error message from body or default to response status
-                    const error = (data && data.message) || response.status;
-                    return Promise.reject(error);
-                }
-            })
-                .catch(error => {
-                    this.errorMessage = error;
-                    console.error('There was an error!', error);
-                });
         },
     },
 })
