@@ -1,5 +1,7 @@
 <template>
   <div class="global-wrapper">
+    <loginForm />
+    <br />
     <MB_regions />
     <br />
     <selectCategoryECO2Mix />
@@ -25,6 +27,7 @@ import eco2mixGraph from "./components/eco2mixGraph.vue";
 import consoTimer from "./components/consoTimer.vue";
 import tempGraph from "./components/tempGraph.vue";
 import consoGraph from "./components/24hConsoGraph.vue";
+import loginForm from "./components/loginForm.vue";
 
 import { Chart, registerables } from "chart.js";
 Chart.register(...registerables);
@@ -39,6 +42,7 @@ export default {
     consoTimer,
     tempGraph,
     consoGraph,
+    loginForm,
   },
 };
 </script>

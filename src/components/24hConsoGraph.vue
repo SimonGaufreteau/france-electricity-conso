@@ -35,13 +35,12 @@ export default {
                 : "Production " + this.current_category) +
               " en " +
               this.current_region +
-              "(MW)",
+              "(MW) ces dernières 24h",
           },
         },
       };
     },
     chartDataComp() {
-      console.log("Getting data 24");
       const data24 = this.$store.state.eco2mix_24h;
 
       const dataFiltered = data24.filter(
@@ -67,7 +66,6 @@ export default {
         datasets: dts,
         labels: labelsRes,
       };
-      console.log(res);
       return res;
     },
   },

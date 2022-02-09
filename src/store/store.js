@@ -17,6 +17,8 @@ export default createStore({
         regions_geo: null,
 
         // USER
+        isLogged: false,
+        currentJWT: null,
         current_region: null,
 
         // ECO2MIX
@@ -35,6 +37,7 @@ export default createStore({
     },
     mutations: {
         updateCurrentRegion(state, region) {
+            console.log("Updating region : ", region);
             state.current_region = region;
         },
         updateECO2MIXCurrentRegion(state, region) {
@@ -59,6 +62,10 @@ export default createStore({
         },
         updateECO2MIX24h(state, data) {
             state.eco2mix_24h = data;
+        },
+        updateLoginStatus(state, jwt) {
+            state.isLogged = true;
+            state.currentJWT = jwt.token;
         }
     },
 
@@ -73,10 +80,13 @@ export default createStore({
             context.commit('updateECO2MIX', eco2mix);
         },
         //TODO : Fetch current region
-        fetchCurrentRegion(context) {
+        fetchCurrentRegion({ commit, state }) {
             var region = 'Auvergne-Rhône-Alpes';
-            context.commit('updateCurrentRegion', region);
-            context.commit('updateECO2MIXCurrentRegion', region);
+            if (state.isLogged)
+                region = 'Occitanie'
+
+            commit('updateCurrentRegion', region);
+            commit('updateECO2MIXCurrentRegion', region);
         },
         //TODO : fetch ratio from server
         fetchECO2MIXProdRatio(context) {
@@ -91,6 +101,57 @@ export default createStore({
         fetchECO2MIX24h(context) {
             var h24 = eco_24;
             context.commit('updateECO2MIX24h', h24);
-        }
+        },
+        // logs : {login: String, password: String}
+        async login(context, logs) {
+            const jsonLogs = JSON.stringify(logs);
+
+            console.log("Got login request, params : " + jsonLogs);
+            const requestOptions = {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: jsonLogs
+            }
+            return fetch("http://localhost:8080/api/authentification/login", requestOptions).then(async response => {
+                const data = await response.json();
+
+                // check for error response
+                if (!response.ok) {
+                    // get error message from body or default to response status
+                    const error = (data && data.message) || response.status;
+                    return Promise.reject(error);
+                }
+
+                context.commit('updateLoginStatus', data);
+            })
+                .catch(error => {
+                    this.errorMessage = error;
+                    console.error('There was an error!', error);
+                });
+        },
+        async register(context, logs) {
+            const jsonLogs = JSON.stringify(logs);
+
+            console.log("Got register request, params : " + jsonLogs);
+            const requestOptions = {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: jsonLogs
+            }
+            return fetch("http://localhost:8080/api/authentification/register", requestOptions).then(async response => {
+                const data = await response.json();
+
+                // check for error response
+                if (!response.ok) {
+                    // get error message from body or default to response status
+                    const error = (data && data.message) || response.status;
+                    return Promise.reject(error);
+                }
+            })
+                .catch(error => {
+                    this.errorMessage = error;
+                    console.error('There was an error!', error);
+                });
+        },
     },
 })
