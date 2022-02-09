@@ -20,6 +20,9 @@
             required
           />
           <input type="submit" class="btn btn-primary" />
+          <div v-if="errorFormText != ''" class="error-form">
+            Erreur :{{ errorFormText }}
+          </div>
           <!-- @click="doLogin" -->
           <p>
             Don't have an account?
@@ -128,7 +131,12 @@ export default {
             console.log("Logged, fetching current region...");
             this.$store.dispatch("fetchCurrentRegion");
           }
-        });
+        })
+        .catch(
+          () =>
+            (this.errorFormText =
+              "Nous n'avons pas pu vous connecter avec ces identifiants. Merci de réessayer")
+        );
     },
     async doRegister() {
       const dataReg = {
@@ -147,7 +155,8 @@ export default {
           return this.doLogin();
         })
         .catch(() => {
-          this.errorFormText = "Problème lors de l'enregistrement";
+          this.errorFormText =
+            "Problème lors de l'enregistrement. Vérifiez le nom d'utiliseur et le code région.";
         });
     },
   },
