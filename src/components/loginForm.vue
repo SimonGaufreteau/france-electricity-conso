@@ -1,8 +1,8 @@
 <template>
-  <div class="login-module">
+  <div class="login-module login-page wallpaper-login">
     <!-- User not logged = login form -->
     <div v-if="!isLogged">
-      <div v-if="!registerActive">
+      <div v-if="!registerActive" class="card login">
         <h1>Sign In</h1>
         <form v-on:submit.prevent="doLogin" class="form-group">
           <input
@@ -19,12 +19,12 @@
             placeholder="Password"
             required
           />
-          <input type="submit" class="btn btn-primary" />
-          <div v-if="errorFormText != ''" class="error-form">
-            Erreur :{{ errorFormText }}
+          <input type="submit" class="btn" />
+          <div v-if="errorFormText != ''" class="error">
+            Erreur : {{ errorFormText }}
           </div>
           <!-- @click="doLogin" -->
-          <p>
+          <p class="dark-text">
             Don't have an account?
             <a
               href="#"
@@ -34,7 +34,7 @@
           </p>
         </form>
       </div>
-      <div v-else>
+      <div v-else class="card login">
         <h1>Sign Up</h1>
         <form v-on:submit.prevent="doRegister" class="form-group">
           <input
@@ -74,7 +74,7 @@
           />
           <input
             v-model="regionReg"
-            type="number"
+            type="text"
             class="form-control"
             placeholder="Région"
             required
@@ -83,7 +83,7 @@
           <div v-if="errorFormText != ''" class="error-form">
             Erreur :{{ errorFormText }}
           </div>
-          <p>
+          <p class="dark-text">
             Already have an account?
             <a href="#" @click="registerActive = !registerActive"
               >Sign in here</a
@@ -93,9 +93,6 @@
       </div>
     </div>
     <!-- User logged = logout form -->
-    <div v-else>
-      <a href="#" @click="doLogout">Logout</a>
-    </div>
   </div>
 </template>
 
@@ -111,7 +108,7 @@ export default {
       nomReg: "",
       prenomReg: "",
       passwordReg: "",
-      regionReg: 0,
+      regionReg: "",
       errorFormText: "",
     };
   },

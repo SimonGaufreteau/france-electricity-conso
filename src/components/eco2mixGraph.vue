@@ -56,7 +56,7 @@ export default {
       var categories = this.$store.state.eco2mix_categories;
       const filtered = categories.filter((e) => e != "Total");
       var dataCat = [];
-      var colors = ["#77CEFF", "#0079AF", "#123E6B", "#97B0C4", "#A5C8ED"];
+      var colors = ["#5595E8"]; //, "#0079AF", "#123E6B", "#97B0C4", "#A5C8ED"
 
       var stacked = [...this.stackedCharData.values()];
 

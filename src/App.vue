@@ -1,22 +1,34 @@
 <template>
-  <div class="global-wrapper">
+  <div v-if="!this.$store.state.isLogged" class="flex-login">
     <loginForm />
-    <div v-if="this.$store.state.isLogged">
-      <br />
-      <MB_regions />
-      <br />
-      <selectCategoryECO2Mix />
-      <br />
+  </div>
+  <div v-else class="global-wrapper">
+    <div class="logout btn">
+      <a href="#" @click="doLogout">Logout</a>
+    </div>
+    <h2>Données eco2mix</h2>
+    <div class="flex-row top-wrapper">
+      <div class="map-wrapper">
+        <MB_regions />
+      </div>
+      <div class="flex-col graph-wrapper">
+        <eco2mixGraph class="graph" />
+        <consoGraph class="graph" />
+        <div class="top-bar">
+          Sélection d'une catégorie (consomation / production) :
+          <selectCategoryECO2Mix />
+        </div>
+      </div>
+    </div>
+    <div class="secondary-wrapper">
+      <h2 class="alternative-h2">Quelques stats en plus</h2>
+    </div>
+    <div class="flex-row bot-wrapper">
       <region-frame />
-      <br />
       <consoTimer />
-      <br />
-      <eco2mixGraph />
-
-      <consoGraph />
-      <br />
-      <tempGraph />
-      <br />
+      <div class="bot-graph-wrapper">
+        <tempGraph />
+      </div>
     </div>
   </div>
 </template>
@@ -46,11 +58,17 @@ export default {
     consoGraph,
     loginForm,
   },
+  methods: {
+    async doLogout() {
+      console.log("Logout");
+      this.$store.dispatch("logout");
+    },
+  },
 };
 </script>
 
-<style>
-/* #app {
+<style lang="scss">
+@import "./css/mapbox.scss"; /* #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -58,8 +76,4 @@ export default {
   color: #2c3e50;
   margin-top: 60px;
 } */
-.global-wrapper {
-  display: flex;
-  flex-direction: column;
-}
 </style>

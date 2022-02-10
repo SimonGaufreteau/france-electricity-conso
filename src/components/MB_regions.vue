@@ -1,5 +1,5 @@
 <template>
-  <div class="map-wrapper">
+  <div class="map-frame">
     <l-map ref="map" v-model:zoom="zoom" :center="[46.2276, 2.2137]">
       <l-tile-layer
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -60,7 +60,6 @@ export default {
         )
           return null;
         layer.on("mouseover", () => {
-          console.log("Mouseover : ", feature.properties);
           this.$store.commit(
             "updateECO2MIXCurrentRegion",
             feature.properties.nom
@@ -114,7 +113,7 @@ export default {
     },
     tooltip(layer, region) {
       var eco2mix_feat = null;
-      console.log(this.$store.state.eco2mix_data);
+      //console.log(this.$store.state.eco2mix_data);
 
       if (this.$store.state.eco2mix_data == null) eco2mix_feat = {};
       else eco2mix_feat = this.$store.state.eco2mix_data.get(region);
@@ -145,9 +144,7 @@ export default {
     updateECO2MIXStyles() {
       this.$nextTick(() => {
         if (this.$refs.geojson && this.$refs.geojson.leafletObject) {
-          console.log(this.$refs.geojson.leafletObject);
           this.$refs.geojson.leafletObject.eachLayer((layer) => {
-            console.log(layer);
             var region = layer.feature.properties["nom"];
             // eslint-disable-next-line no-unused-vars
             layer.setStyle(this.getStyleForRegion(region));
@@ -188,37 +185,4 @@ export default {
 </script>
 
 <style>
-.main-wrapper {
-  display: flex;
-}
-
-.map-wrapper {
-  height: 75vh;
-  width: 75vh;
-}
-
-.region_title {
-  font-size: 16px;
-}
-
-.total_conso {
-  font-weight: bold;
-}
-
-.underlined {
-  text-decoration: underline;
-}
-
-ul {
-  display: flex;
-  flex-direction: column;
-  align-content: flex-start;
-  padding: 0px;
-  /* padding-left: 10px; */
-  margin: 0px;
-}
-
-li {
-  margin-left: 15px;
-}
 </style>

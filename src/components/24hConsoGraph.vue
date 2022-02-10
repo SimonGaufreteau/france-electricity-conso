@@ -64,7 +64,7 @@ export default {
           data: dataRes,
           fill: true,
           label: this.current_category,
-          backgroundColor: ["#77CEFF"],
+          backgroundColor: ["#5595E8"],
         },
       ];
       const res = {

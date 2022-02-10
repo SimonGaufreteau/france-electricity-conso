@@ -112,9 +112,13 @@ export default createStore({
             var geojson = regions_json;
             context.commit('updateRegionsGeo', geojson);
         },
-        //TODO : fetch ratio from server
-        fetchECO2MIXProdRatio(context) {
-            context.commit('updateECO2MIXProdRatio', 0.1645);
+        fetchECO2MIXProdRatio({ commit, dispatch, state }) {
+            const requestOptions = {
+                headers: state.headers
+            };
+            const url = "/api/microservices/eco2mix/ratio/" + state.current_region;
+            return dispatch('genericFetching', { url: url, hasres: true, options: requestOptions }).then(ratio => commit('updateECO2MIXProdRatio', ratio.Ratio));
+
         },
         fetchECO2MIX24h({ dispatch, state }) {
             const requestOptions = {

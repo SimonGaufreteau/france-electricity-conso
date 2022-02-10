@@ -1,5 +1,5 @@
 <template>
-  <LineChart :chartData="chartDataComp" :options="options" />
+  <LineChart class="alt-graph" :chartData="chartDataComp" :options="options" />
 </template>
 
 <script>
@@ -60,7 +60,7 @@ export default {
         {
           data: dataRes,
           label: "Température (°C)",
-          backgroundColor: ["#77CEFF"],
+          backgroundColor: ["#5595E8"],
         },
       ];
 
@@ -81,5 +81,14 @@ export default {
 };
 </script>
 
-<style>
+<style lang="scss">
+@import "../css/mapbox.scss";
+
+.alt-graph {
+  background-color: $third-blue;
+  height: 80%;
+  width: 100%;
+  outline: 0.25rem solid $main-orange;
+  border-radius: 5%;
+}
 </style>

@@ -1,7 +1,10 @@
 <template>
-  <div>
-    Conso dans votre région depuis votre arrivée sur le site ({{ dateSince }}) :
-    {{ prettyConso }} MW
+  <div class="timer-wrapper">
+    <div class="timer-text">
+      Conso dans votre région depuis votre arrivée sur le site ({{ dateSince }})
+      :
+    </div>
+    <div class="timer-value">{{ prettyConso }} MW</div>
   </div>
 </template>
 
@@ -43,5 +46,18 @@ export default {
 };
 </script>
 
-<style>
+<style lang="scss">
+@import "../css/mapbox.scss";
+
+.timer-wrapper {
+  @extend %card-wrapper;
+  display: flex;
+  flex-direction: column;
+}
+
+.timer-value {
+  font-weight: bold;
+  font-size: 1.5rem;
+  margin: 1rem;
+}
 </style>
