@@ -70,35 +70,7 @@ export default {
           layer.setStyle(this.getStyleForRegion(feature.properties.nom));
           this.$store.commit("resetECO2MIXCurrentRegion");
         });
-        var eco2mix_feat = null;
-        if (this.$store.state.eco2mix_data == null) eco2mix_feat = {};
-        else
-          eco2mix_feat = this.$store.state.eco2mix_data.get(
-            feature.properties.nom
-          );
-        if (eco2mix_feat == undefined) return null;
-        layer.bindTooltip(
-          "<div class='region_title'>Région : " +
-            eco2mix_feat["Région"] +
-            "</div><div class='total_conso'>Conso Totale (MW) : " +
-            eco2mix_feat["Total"] +
-            "</div><div><ul><div class='underlined'>Production (MW) :</div> " +
-            "<li>Thermique : " +
-            eco2mix_feat["Thermique"] +
-            "</li><li>Nucléaire : " +
-            eco2mix_feat["Nucléaire"] +
-            "</li><li>Éolien : " +
-            eco2mix_feat["Éolien"] +
-            "</li><li>Solaire : " +
-            eco2mix_feat["Solaire"] +
-            "</li><li>Hydraulique : " +
-            eco2mix_feat["Hydraulique"] +
-            "</li><li>Bioénergies : " +
-            eco2mix_feat["Bioénergies"] +
-            "</li></ul></div>" +
-            "</div>",
-          { permanent: false, sticky: true }
-        );
+        //this.tooltip();
       };
     },
   },
@@ -140,13 +112,47 @@ export default {
         fillOpacity: 0.7,
       };
     },
+    tooltip(layer, region) {
+      var eco2mix_feat = null;
+      console.log(this.$store.state.eco2mix_data);
+
+      if (this.$store.state.eco2mix_data == null) eco2mix_feat = {};
+      else eco2mix_feat = this.$store.state.eco2mix_data.get(region);
+      if (eco2mix_feat == undefined) return null;
+      layer.bindTooltip(
+        "<div class='region_title'>Région : " +
+          eco2mix_feat["Région"] +
+          "</div><div class='total_conso'>Conso Totale (MW) : " +
+          eco2mix_feat["Total"] +
+          "</div><div><ul><div class='underlined'>Production (MW) :</div> " +
+          "<li>Thermique : " +
+          eco2mix_feat["Thermique"] +
+          "</li><li>Nucléaire : " +
+          eco2mix_feat["Nucléaire"] +
+          "</li><li>Éolien : " +
+          eco2mix_feat["Éolien"] +
+          "</li><li>Solaire : " +
+          eco2mix_feat["Solaire"] +
+          "</li><li>Hydraulique : " +
+          eco2mix_feat["Hydraulique"] +
+          "</li><li>Bioénergies : " +
+          eco2mix_feat["Bioénergies"] +
+          "</li></ul></div>" +
+          "</div>",
+        { permanent: false, sticky: true }
+      );
+    },
     updateECO2MIXStyles() {
       this.$nextTick(() => {
         if (this.$refs.geojson && this.$refs.geojson.leafletObject) {
+          console.log(this.$refs.geojson.leafletObject);
           this.$refs.geojson.leafletObject.eachLayer((layer) => {
+            console.log(layer);
             var region = layer.feature.properties["nom"];
             // eslint-disable-next-line no-unused-vars
             layer.setStyle(this.getStyleForRegion(region));
+            this.tooltip(layer, region);
+
             //layer.remove();
           });
           //this.$refs.geojson.leafletObject._map.invalidateSize(true);
