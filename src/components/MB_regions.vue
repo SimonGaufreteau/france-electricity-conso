@@ -50,12 +50,17 @@ export default {
       };
     },
     onEachFeatureFunction() {
+      // eslint-disable-next-line no-unused-vars
+      const st = this.current_eco2mix_category;
       return (feature, layer) => {
-        const eco2mix_feat = this.$store.state.eco2mix_data.get(
-          feature.properties.nom
-        );
-        if (eco2mix_feat == undefined) return null;
+        if (
+          feature == undefined ||
+          feature == null ||
+          feature.properties == undefined
+        )
+          return null;
         layer.on("mouseover", () => {
+          console.log("Mouseover : ", feature.properties);
           this.$store.commit(
             "updateECO2MIXCurrentRegion",
             feature.properties.nom
@@ -65,6 +70,13 @@ export default {
           layer.setStyle(this.getStyleForRegion(feature.properties.nom));
           this.$store.commit("resetECO2MIXCurrentRegion");
         });
+        var eco2mix_feat = null;
+        if (this.$store.state.eco2mix_data == null) eco2mix_feat = {};
+        else
+          eco2mix_feat = this.$store.state.eco2mix_data.get(
+            feature.properties.nom
+          );
+        if (eco2mix_feat == undefined) return null;
         layer.bindTooltip(
           "<div class='region_title'>Région : " +
             eco2mix_feat["Région"] +
@@ -150,9 +162,6 @@ export default {
         if (this.$store.state.regions_geo == null) {
           this.$store.dispatch("fetchRegionsGeo");
         }
-        if (this.$store.state.eco2mix_data == null) {
-          this.$store.dispatch("fetchECO2MIX");
-        }
       } catch (error) {
         console.log(error);
       }
@@ -165,9 +174,8 @@ export default {
   },
   async created() {
     this.loading = true;
-    console.log("Fetching data in REGIONS");
+    console.log("Fetching geo data in REGIONS");
     await this.fetchData();
-    console.log("Finished fetching");
     this.loading = false;
   },
 };

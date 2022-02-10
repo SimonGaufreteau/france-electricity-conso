@@ -93,7 +93,10 @@
       </div>
     </div>
     <!-- User logged = logout form -->
-    <div v-else>Token : {{ this.$store.state.currentJWT }}</div>
+    <div v-else>
+      Logged ? {{ this.isLogged }} / Token :
+      {{ this.$store.state.currentJWT }}
+    </div>
   </div>
 </template>
 
@@ -125,12 +128,6 @@ export default {
         .dispatch("login", {
           login: this.userLogin,
           password: this.passwordLogin,
-        })
-        .then(() => {
-          if (this.$store.state.isLogged) {
-            console.log("Logged, fetching current region...");
-            this.$store.dispatch("fetchCurrentRegion");
-          }
         })
         .catch(
           () =>

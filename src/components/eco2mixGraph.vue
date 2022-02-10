@@ -13,6 +13,7 @@ export default {
   computed: {
     current_region: {
       get() {
+        console.log("Updating current region");
         return this.$store.state.eco2mix_current_region;
       },
     },
@@ -44,37 +45,41 @@ export default {
         },
       };
     },
-    chartDataComp: {
-      get() {
-        var ecoData = this.$store.state.eco2mix_data.get(this.current_region);
+    chartDataComp() {
+      console.log("Updating char data eco2mix");
 
-        var categories = this.$store.state.eco2mix_categories;
-        const filtered = categories.filter((e) => e != "Total");
-        var dataCat = [];
-        var colors = ["#77CEFF", "#0079AF", "#123E6B", "#97B0C4", "#A5C8ED"];
+      var eco2mix = this.$store.state.eco2mix_data;
+      if (eco2mix == null || eco2mix == undefined) return {};
+      var ecoData = eco2mix.get(this.current_region);
+      if (ecoData == undefined || ecoData == null) return {};
 
-        var stacked = [...this.stackedCharData.values()];
+      var categories = this.$store.state.eco2mix_categories;
+      const filtered = categories.filter((e) => e != "Total");
+      var dataCat = [];
+      var colors = ["#77CEFF", "#0079AF", "#123E6B", "#97B0C4", "#A5C8ED"];
 
-        filtered.forEach((category) => {
-          dataCat.push(ecoData[category]);
-        });
-        var dts = [
-          {
-            data: dataCat,
-            backgroundColor: colors,
-          },
-          {
-            data: stacked,
-          },
-        ];
-        const res = {
-          labels: filtered,
-          datasets: dts,
-        };
-        return res;
-      },
+      var stacked = [...this.stackedCharData.values()];
+
+      filtered.forEach((category) => {
+        dataCat.push(ecoData[category]);
+      });
+      var dts = [
+        {
+          data: dataCat,
+          backgroundColor: colors,
+        },
+        {
+          data: stacked,
+        },
+      ];
+      const res = {
+        labels: filtered,
+        datasets: dts,
+      };
+      return res;
     },
     stackedCharData() {
+      if (this.$store.state.eco2mix_data == null) return null;
       var ecoData = this.$store.state.eco2mix_data;
       var categories = this.$store.state.eco2mix_categories;
       const filtered = categories.filter((e) => e != "Total");
@@ -97,19 +102,6 @@ export default {
 
       return sumMap;
     },
-  },
-  methods: {
-    fetchData() {
-      if (this.$store.state.current_region == null) {
-        this.$store.dispatch("fetchCurrentRegion");
-      }
-      if (this.$store.state.eco2mix_data == null) {
-        this.$store.dispatch("fetchECO2MIX");
-      }
-    },
-  },
-  created() {
-    this.fetchData();
   },
 };
 </script>

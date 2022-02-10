@@ -1,21 +1,23 @@
 <template>
   <div class="global-wrapper">
     <loginForm />
-    <br />
-    <MB_regions />
-    <br />
-    <selectCategoryECO2Mix />
-    <br />
-    <region-frame />
-    <br />
-    <consoTimer />
-    <br />
-    <eco2mixGraph />
+    <div v-if="this.$store.state.isLogged">
+      <br />
+      <MB_regions />
+      <br />
+      <selectCategoryECO2Mix />
+      <br />
+      <region-frame />
+      <br />
+      <consoTimer />
+      <br />
+      <eco2mixGraph />
 
-    <consoGraph />
-    <br />
-    <tempGraph />
-    <br />
+      <consoGraph />
+      <br />
+      <tempGraph />
+      <br />
+    </div>
   </div>
 </template>
 

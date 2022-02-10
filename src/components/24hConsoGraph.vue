@@ -1,5 +1,5 @@
 <template>
-  <LineChart :chartData="chartDataComp" :options="options" />
+  <LineChart ref="chart" :chartData="chartDataComp" :options="options" />
 </template>
 
 
@@ -17,7 +17,10 @@ export default {
       return this.$store.state.eco2mix_current_category;
     },
     current_region() {
-      return this.$store.state.current_region;
+      return this.$store.state.eco2mix_current_region;
+    },
+    ecoData() {
+      return this.$store.state.eco2mix_24h;
     },
     options() {
       return {
@@ -41,11 +44,13 @@ export default {
       };
     },
     chartDataComp() {
-      const data24 = this.$store.state.eco2mix_24h;
-
+      if (this.ecoData == null) return {};
+      const data24 = this.ecoData;
+      if (this.current_region == "Corse") return {};
       const dataFiltered = data24.filter(
         (e) => e["Région"] == this.current_region
       );
+      //console.log(dataFiltered);
 
       var dataRes = [];
       var labelsRes = [];
@@ -82,9 +87,14 @@ export default {
       }
     },
   },
-  created() {
-    this.fetchData();
+  watch: {
+    ecoData() {
+      console.log("Rendering");
+      console.log(this.$refs.chart);
+      this.$refs.chart.$forceUpdate();
+    },
   },
+  created() {},
 };
 </script>
 

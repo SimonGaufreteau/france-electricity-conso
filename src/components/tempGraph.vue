@@ -11,8 +11,11 @@ export default {
     LineChart,
   },
   computed: {
+    isLogged() {
+      return this.$store.state.isLogged;
+    },
     current_region() {
-      return this.$store.state.current_region;
+      return this.$store.state.eco2mix_current_region;
     },
     options() {
       return {
@@ -33,19 +36,26 @@ export default {
       };
     },
     chartDataComp() {
+      // eslint-disable-next-line no-unused-vars
+      const lg = this.isLogged;
+      if (this.$store.state.temperature_data == null) {
+        return {};
+      }
       const dataTemp = this.$store.state.temperature_data;
       const dataFiltered = dataTemp.filter(
         (e) => e["région"] == this.current_region
       );
       var dataRes = [];
       var labelsRes = [];
+      var i = 0;
+      var n = 5;
       dataFiltered.forEach((el) => {
-        dataRes.push(el["tmoy"]);
-        labelsRes.push(el["date"].substr(5, 5));
+        if (i % n == 0) {
+          dataRes.push(el["tmoy"]);
+          labelsRes.push(el["date"].substr(5, 5));
+        }
+        i++;
       });
-      console.log(this.current_region);
-      console.log(dataRes);
-      console.log(labelsRes);
       var dts = [
         {
           data: dataRes,
@@ -63,17 +73,10 @@ export default {
     },
   },
   methods: {
-    async fetchData() {
-      if (this.$store.state.current_region == null) {
-        await this.$store.dispatch("fetchCurrentRegion");
-      }
-      if (this.$store.state.temperature_data == null) {
-        this.$store.dispatch("fetchTemperatureData", this.current_region);
-      }
-    },
+    async fetchData() {},
   },
   created() {
-    this.fetchData();
+    //this.fetchData();
   },
 };
 </script>

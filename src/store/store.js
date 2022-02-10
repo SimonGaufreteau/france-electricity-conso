@@ -2,11 +2,6 @@ import { createStore } from 'vuex'
 //GeoJSON
 import regions_json from "../assets/regions.json";
 
-//SAMPLE DATA
-import sample_eco2mix from "../assets/eco2mix_sample.json";
-import eco_24 from '../assets/eco2mix_24h.json';
-import temperature from '../assets/temperature_sample.json'
-
 // UTILS
 import { mapEcoData } from "../utils_js/eco2mix_utils";
 
@@ -18,9 +13,12 @@ export default createStore({
         regions_geo: null,
 
         // USER
+        prenom: null,
+        nom: null,
         isLogged: false,
         currentJWT: null,
-        current_region: null,
+        current_region: 'Occitanie',
+        headers: null,
 
         // ECO2MIX
         // Region selected on the map
@@ -37,7 +35,6 @@ export default createStore({
     },
     mutations: {
         updateCurrentRegion(state, region) {
-            console.log("Updating region : ", region);
             state.current_region = region;
         },
         updateECO2MIXCurrentRegion(state, region) {
@@ -63,9 +60,18 @@ export default createStore({
         updateECO2MIX24h(state, data) {
             state.eco2mix_24h = data;
         },
-        updateLoginStatus(state, jwt) {
+        updateLoginStatus(state, logdata) {
+            console.log(logdata);
             state.isLogged = true;
-            state.currentJWT = jwt.token;
+            state.currentJWT = logdata.token;
+            state.headers = {
+                "Authorization": "Bearer " + logdata.token,
+                "Content-Type": "application/json",
+            };
+            state.current_region = logdata.region;
+            state.eco2mix_current_region = logdata.region;
+            state.nom = logdata.nom;
+            state.prenom = logdata.prenom;
         },
         updateTemperatureData(state, data) {
             state.temperature_data = data;
@@ -79,7 +85,7 @@ export default createStore({
             const options = data["options"];
             const hasres = data["hasres"];
 
-            console.log("Generic fetching on : ", url, " / Options : ", options);
+            console.log("Generic fetching on :", url, " / Options : ", options);
             return ((options != null && options != undefined) ? fetch(url, options) : fetch(url)).then(async response => {
                 // check for error response
                 if (!response.ok) {
@@ -87,6 +93,9 @@ export default createStore({
                     const error = (data && data.message) || response.status;
                     return Promise.reject(error);
                 }
+                //const second = response.clone();
+                //console.log(await second.text());
+                console.log("Finished generic fetching on :", url, " / Returning ? ", hasres);
                 if (hasres)
                     return await response.json();
             })
@@ -99,41 +108,40 @@ export default createStore({
             var geojson = regions_json;
             context.commit('updateRegionsGeo', geojson);
         },
-        fetchECO2MIX(context) {
-            // TODO : replace this with fetch from server
-            var eco2mix = mapEcoData(sample_eco2mix);
-            context.commit('updateECO2MIX', eco2mix);
-        },
-        //TODO : Fetch current region
-        fetchCurrentRegion({ commit, state }) {
-            var region = 'Auvergne-Rhône-Alpes';
-            if (state.isLogged)
-                region = 'Occitanie'
-
-            commit('updateCurrentRegion', region);
-            commit('updateECO2MIXCurrentRegion', region);
-        },
         //TODO : fetch ratio from server
         fetchECO2MIXProdRatio(context) {
             context.commit('updateECO2MIXProdRatio', 0.1645);
         },
-        //TODO : fetch temperature from server
-        fetchTemperature(context) {
-            var temperature = undefined;
-            context.commit('updateTemperature', temperature);
+        fetchECO2MIX24h({ dispatch, state }) {
+            const requestOptions = {
+                headers: state.headers
+            };
+            const url = "/api/microservices/eco2mix/day"
+            return dispatch('genericFetching', { url: url, hasres: true, options: requestOptions })
+
         },
-        //TODO : fetch 24h data from server
-        fetchECO2MIX24h(context) {
-            var h24 = eco_24;
-            context.commit('updateECO2MIX24h', h24);
+        fetchECO2MIX({ dispatch, state }) {
+            const requestOptions = {
+                headers: state.headers
+            };
+            const url = "/api/microservices/eco2mix/hour"
+            return dispatch('genericFetching', { url: url, hasres: true, options: requestOptions })
+                .then((data) => mapEcoData(data))
         },
         // eslint-disable-next-line no-unused-vars
-        async fetchTemperatureData({ dispatch, commit }, region) {
-            const data = temperature;
-            commit('updateTemperatureData', data);
-            /*const url = "http://localhost:8080/microservices/temperature/yearRegion/2021/" + region
-            return dispatch('genericFetching', { url: url, hasres: true }).then((data) => commit('updateTemperatureData', data));*/
+        async fetchTemperatureData({ dispatch, commit, state }) {
+            const requestOptions = {
+                headers: state.headers
+            };
+            const url = "/api/microservices/temperature/year/2021"
+            return dispatch('genericFetching', { url: url, hasres: true, options: requestOptions });
 
+        },
+        // ALL FETCHER
+        async fetchAllData({ dispatch, commit }) {
+            dispatch('fetchTemperatureData').then((data) => commit('updateTemperatureData', data));
+            dispatch('fetchECO2MIX24h').then(data => commit('updateECO2MIX24h', data));
+            dispatch('fetchECO2MIX').then(data => commit('updateECO2MIX', data));
         },
         // logs : {login: String, password: String}
         async login({ dispatch, commit }, logs) {
@@ -146,7 +154,9 @@ export default createStore({
             };
             console.log("Got login request, params : " + requestOptions);
 
-            return dispatch('genericFetching', { url: 'http://localhost:8080/api/authentification/login', options: requestOptions, hasres: true }).then(data => commit('updateLoginStatus', data));
+            return dispatch('genericFetching', { url: '/api/authentification/login', options: requestOptions, hasres: true })
+                .then(data => commit('updateLoginStatus', data))
+                .then(() => dispatch('fetchAllData'));
 
         },
         async register({ dispatch }, logs) {
@@ -158,7 +168,7 @@ export default createStore({
                 headers: { "Content-Type": "application/json" },
                 body: jsonLogs
             }
-            return dispatch('genericFetching', { url: 'http://localhost:8080/api/authentification/register', options: requestOptions });
+            return dispatch('genericFetching', { url: '/api/authentification/register', options: requestOptions });
 
         },
     },

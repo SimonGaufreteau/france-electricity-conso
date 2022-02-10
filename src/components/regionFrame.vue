@@ -20,30 +20,31 @@
 export default {
   name: "regionFrame",
   computed: {
-    current_region: {
-      get() {
-        return this.$store.state.current_region;
-      },
+    ecoData() {
+      return this.$store.state.eco2mix_data;
     },
-    current_eco2mix_data: {
-      get() {
-        return this.$store.state.eco2mix_data.get(this.current_region);
-      },
+    current_region() {
+      const region = this.$store.state.current_region;
+      console.log("Updating region frame", region);
+
+      if (region == undefined || region == null) return {};
+      return region;
+    },
+    current_eco2mix_data() {
+      console.log("Updating frame  :", this.ecoData);
+      const reg = this.current_region;
+      if (this.ecoData == null) return {};
+      return this.$store.state.eco2mix_data.get(reg);
     },
   },
   methods: {
     fetchData() {
-      if (this.$store.state.current_region == null) {
-        this.$store.dispatch("fetchCurrentRegion");
-      }
       if (this.$store.state.eco2mix_data == null) {
         this.$store.dispatch("fetchECO2MIX");
       }
     },
   },
-  created() {
-    this.fetchData();
-  },
+  created() {},
 };
 </script>
 
