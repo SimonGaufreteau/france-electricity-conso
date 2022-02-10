@@ -94,8 +94,7 @@
     </div>
     <!-- User logged = logout form -->
     <div v-else>
-      Logged ? {{ this.isLogged }} / Token :
-      {{ this.$store.state.currentJWT }}
+      <a href="#" @click="doLogout">Logout</a>
     </div>
   </div>
 </template>
@@ -122,6 +121,10 @@ export default {
     },
   },
   methods: {
+    async doLogout() {
+      console.log("Logout");
+      this.$store.dispatch("logout");
+    },
     async doLogin() {
       console.log("Sending login");
       this.$store

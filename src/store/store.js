@@ -73,6 +73,10 @@ export default createStore({
             state.nom = logdata.nom;
             state.prenom = logdata.prenom;
         },
+        disableLogin(state) {
+            state.isLogged = false;
+            state.currentJWT = null;
+        },
         updateTemperatureData(state, data) {
             state.temperature_data = data;
         }
@@ -161,6 +165,9 @@ export default createStore({
                 .then(data => commit('updateLoginStatus', data))
                 .then(() => dispatch('fetchAllData'));
 
+        },
+        logout({ commit }) {
+            commit('disableLogin');
         },
         async register({ dispatch }, logs) {
             const jsonLogs = JSON.stringify(logs);
