@@ -74,26 +74,6 @@ export default {
       return res;
     },
   },
-  methods: {
-    fetchData() {
-      if (this.$store.state.eco2mix_24h == null) {
-        this.$store.dispatch("fetchECO2MIX24h");
-      }
-      if (this.$store.state.current_region == null) {
-        this.$store.dispatch("fetchCurrentRegion");
-      }
-      if (this.$store.state.eco2mix_data == null) {
-        this.$store.dispatch("fetchECO2MIX");
-      }
-    },
-  },
-  watch: {
-    ecoData() {
-      console.log("Rendering");
-      console.log(this.$refs.chart);
-      this.$refs.chart.$forceUpdate();
-    },
-  },
   created() {},
 };
 </script>

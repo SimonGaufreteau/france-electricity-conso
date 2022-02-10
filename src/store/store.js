@@ -138,10 +138,12 @@ export default createStore({
 
         },
         // ALL FETCHER
-        async fetchAllData({ dispatch, commit }) {
+        async fetchAllData({ dispatch, commit, state }) {
             dispatch('fetchTemperatureData').then((data) => commit('updateTemperatureData', data));
             dispatch('fetchECO2MIX24h').then(data => commit('updateECO2MIX24h', data));
-            dispatch('fetchECO2MIX').then(data => commit('updateECO2MIX', data));
+            dispatch('fetchECO2MIX').then(data => commit('updateECO2MIX', data))
+                .then(() => setTimeout(commit('updateECO2MIXCurrentRegion', 'Occitanie'), 100))
+                .then(() => setTimeout(commit('updateECO2MIXCurrentRegion', state.current_region), 100));
         },
         // logs : {login: String, password: String}
         async login({ dispatch, commit }, logs) {
